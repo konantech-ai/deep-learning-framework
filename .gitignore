@@ -1,0 +1,33 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+# Caches
+.vscode/
+.vs/
+*.kai
+__pycache__/
+*.pyc
+work/
+download/
+cache/
+
+################################################################################
+/source/x64
+/install/boost_1_76_0/libs/math/dot_net_example/distribution_explorer/obj
+/out
+docs/html
+docs/python_docs/build
+docs/python_docs/source
+docs/python_docs/make.bat
+docs/python_docs/Makefile
+/Testing
+/data/movies/prono/file1.avi
+/data/movies/prono/file2.mp4
+/data/movies/prono/file3.mp4
+/logs
+/.idea
+################################################################################
+/source/python/konanai.egg-info
+/source/python/build/lib/konanai
+################################################################################
+/source/python/certification/results

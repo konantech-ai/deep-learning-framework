@@ -1,0 +1,893 @@
+################################################################################
+
+[ History 검색 키워드 ]
+  Open
+  Close
+  파일 이동
+  파일명 변경
+
+[ Code Standard ]
+  C++
+    Function : PascalLikeThis
+    variable : snake_like_this
+    pointer : snake_ptr
+  Python
+    snake
+
+[ Commit Standard ]
+  Commit Title
+    제목 생성을 위해 첫줄은 요약으로 작성, 다음 줄 부터 세부사항 기록
+      [Create] : create.cpp, create.hpp
+      [Modify] : modify.cpp, modify.hpp
+      [Move] : From A To B
+      [Delete] : delete.cpp, delete.hpp
+      [Merge] : A branch -> B branch
+  Commit Body
+    History.txt에서 작성한 내용 복사
+  Branch & Merge
+    작업은 개인 브랜치로 이동 후 자유롭게 Commit
+    마무리 단계에서 중요사항을 Squash Commit으로 정리
+    Squash Commit을 main Branch에 Merge한다.
+
+################################################################################
+
+[ History - 31 ]
+# Open
+
+# 2022.10.19 - 01
+  kai2021 -> kai -> konanai -> src -> cpp
+    api_python.cpp
+    PyObject* Call_StringFromTensorDump(void* tensor_ptr, PyObject* pyobject_name)
+    생성한 pyobject 데이터가 너무 많은 경우 python에서 출력을 다 하지 못하는 경우가 생김
+Open
+
+################################################################################
+
+[ History - 30 ]
+# Close
+
+# 2022.10.07 - 01
+  kai2021 -> kai -> konanai_cpp -> src -> objects -> tp_tensor.h
+    Tensor to_type(VDataType type);
+      uint8 -> float32 변환 시, -1.0 ~ 1.0, Data-Normailze가 발생함
+      Python NumPy를 사용하여 Tensor를 직접 생성하는 경우 Data Type을 지정하도록 되어있음
+      float32로 데이터를 등록하면 Type변환이 없음 -> Data-Normalize가 일어나지 않음 -> 주의 필요
+Close
+
+################################################################################
+
+[ History - 29 ]
+# Open
+
+# 2022.10.04 - 01
+  Abalone 예제는 Cache를 Load 하지 않도록 되어있음, Cache 생성은 함
+    kai2021 -> kai -> konanai_cpp -> src -> test -> cpp_test_abalone.cpp
+      void KaiTorchTest::run_abalone_test()
+        kwArgs 에 create_cache 없음
+    kai2021 -> kai -> konanai_cpp -> src -> datasets -> to_python_csv_dataset.cpp
+      bool CsvDataset::m_load_cache(string cachePath, bool train)
+        getArg 에 create_cache 없음, 기본 생성자 true
+        if (create_cache) return false;
+Open
+
+################################################################################
+
+[ History - 28 ]
+# Close
+
+# 2022.09.26 - 01
+  RESTful API 적용
+  kai2021 -> kai -> konanai -> src -> cpp
+    api_restful.cpp
+    api_restful.h
+  kai2021 -> kai -> konanai -> src -> api_python -> sample -> restful
+    restful_server_sample.py
+    restful_client_sample.py
+Close
+
+################################################################################
+
+[ History - 27 ]
+# Open
+
+# 2022.09.26 - 01
+  kai2021 -> kai -> konanai_cpp -> src -> objects
+  tp_tensor.cpp
+    Tensor Tensor::softmax()
+      void TensorCore::m_softmax(...)
+      TensorCore softmax추가 필요
+  tp_module.cpp
+    void Module::compile(VDict kwAgs)
+      crossentropy_softmax 추가필요
+Open
+
+################################################################################
+
+[ History - 26 ]
+# Close
+
+# 2022.09.20 - 01
+  kai2021 -> kai -> konanai -> src -> api_python -> tutorial_dhyoon
+  0021_single_layer_abalone.py
+    해당 예제를 만들기 위한 Dataset, DataLoader 손질 필요
+  kai2021 -> kai -> konanai_cpp -> src -> datasets -> to_python_csv_dataset.cpp
+    CsvDataset::CsvDataset(NN nn, string name, VDict kwArgs) : Dataset(nn, kwArgs)
+    CsvDataset 클래스의 생성자에서 kwArgs를 활용하도록 되어있음
+      ...
+      VDict kwArgs = { {"root", "data"}, {"download", false} };
+      kwArgs["use_header"] = true;
+      kwArgs["input_normalize"] = true;
+      kwArgs["y_columns"] = VList{ 8 };
+      kwArgs["symbol_to_onehot_columns"] = VList{ 0 };
+      ...
+  CsvDataset 클래스는 Data File 호출까지만 담당하고
+  DataLoader에서 Arg를 활용하도록 손질 필요
+  따라서 CsvDataset 클래스와 Dataloader를 분리 할 목적으로
+  새로운 CsvDataset 클래스 생성자 필요
+    CsvDataset 클래스 생성자에서 사용 할 Args
+      "root", "download"
+    DataLoader 클래스 생성자에서 사용 할 Args (= DataLoader 생성자 호출 시 Dataset 클래스를 조작 할 Args)
+      "use_header", "input_normalize", "y_columns", "symbol_to_onehot_columns"
+Close
+
+################################################################################
+
+[ History - 25 ]
+# Open
+
+# 2022.09.16 - 01
+# 2022.08.18 - 04 동일 이슈
+  kai2021 -> kai -> konanai -> src -> api_python -> tutorial_dhyoon
+  0021_single_layer_abalone.py
+    nn.datasets.CsvDataset("path/abalone.scv")
+      to_python_csv_dataset.cpp
+      void CsvDataset::m_save_cache(string cachePath, bool train) 함수
+        TpStreamOut 클래스의 save_tensor 함수 미구현으로 예외처리 발생
+  kai2021 -> kai -> konanai_cpp -> src -> objects
+  tp_dataset.cpp
+    void Dataset::m_loadData(string path, bool train)
+      m_save_cache(cachePath, train);
+      임시 주석 처리
+  TpStreamOut 클래스의 save_tensor 함수 수정
+    tensor.save(this);
+    void Dataset::m_loadData(string path, bool train)
+      m_save_cache(cachePath, train);
+      임시 주석 해제
+Close
+
+# 2022.09.16 - 02
+  kai2021 -> kai -> konanai_cpp -> src -> objects
+  tp_dataset.cpp
+    void Dataset::m_loadData(string path, bool train)
+    해당 함수 에서 DatasetCore::ms_cacheRoot; 경로 까지 폴더가 없으면 폴더를 생성하지 못함
+    DatasetCore::ms_cacheRoot는 string(getenv("KONANAI_PATH")) + 사용자 입력 Path로 이뤄짐
+    string(getenv("KONANAI_PATH")) 경로 까지는 반드시 존재하므로 사용자 입력 Path의 폴더를 생성하도록 처리 필요
+  tp_dataset.cpp
+    cacheSubPath의 폴더를 생성하도록 수정
+Close
+
+################################################################################
+
+[ History - 24 ]
+# Close
+
+# 2022.09.15 - 01
+  kai2021 -> kai -> konanai -> src -> konanai -> tutorial
+  single_perceptron_one_input.py
+    Tensor를 NumPy로 대체하는 함수 사용
+    y_hat -> y_hat.to_ndarray().flatten()
+Close
+
+################################################################################
+
+[ History - 23 ]
+# Close
+
+# 2022.09.06 - 01
+  kai2021 -> kai -> konanai -> src -> konanai -> cpp
+  api_python.cpp
+    ToTensorFunction 항목 삭제
+    Get_kwArgs["transform"] = ((Session*)pSession)->ToTensorFunction().getCore();
+      void* Call_MnistDataset(void* pSession, PyObject* PyObj_name, PyObject* PyObj_dict)
+      void* Call_Cifar10Dataset(void* pSession, PyObject* PyObj_dict)
+Close
+
+# 2022.09.06 - 02
+  kai2021 -> kai -> konanai -> src -> konanai -> cpp
+  api_python.cpp
+    return NULL; or return ; 처리
+      void Call_Dump_Parameters(void* pParameters)
+      const char* Call_Dump_Parameters_To_Str(void* pParameters)
+      const char* Call_Tensor_Dump_To_Str(void* pTensor, PyObject* PyObj_name)
+Close
+
+################################################################################
+
+[ History - 22 ]
+# Open
+
+# 2022.08.29 - 01
+  kai2021 -> kai -> konanai -> src -> konanai -> tutorial
+  0011_single_perceptron_one_input.py
+    kai2021 -> kai -> konanai -> src -> konanai -> model.py
+    dump를 통해 core 복사를 하지 않으면 tensor가 출력되지 않는 현상 발생
+Open
+
+# 2022.08.29 - 02
+  kai2021 -> kai -> konanai -> src -> konanai -> tutorial
+  0012_single_perceptron_without_fit.py
+    해당 tutorial 작성을 위해 필요한 API 검토
+Close
+
+################################################################################
+
+[ History - 21 ]
+# Close
+
+# 2022.08.26 - 01
+  History.txt 활용을 위한 키워드 정리
+  필요시 상단에 추가하도록 함
+    Open
+    Close
+    파일 이동
+    파일명 변경
+Close
+
+# 2022.08.26 - 02
+  rebase - squash commit 연습하기
+Close
+
+################################################################################
+
+[ History - 20 ]
+# Close
+
+# 2022.08.26 - 01
+  중간 참여자가 발생하는 경우
+    Code Standard, Commit Standard 자료 정리
+Close
+
+# 2022.08.26 - 02
+  파일 이동
+    From : kai2021 -> kai -> konanai -> src -> api_python -> sample
+    To : kai2021 -> kai -> konanai -> src -> konanai -> cpp
+      kpy_suppoter.cpp
+      kpy_suppoter.h
+      kpy_data_handler.cpp
+      kpy_data_handler.h
+  파일명 변경
+    kai2021 -> kai -> konanai -> src -> konanai -> cpp
+      kpy_suppoter.cpp -> api_python.cpp
+      kpy_suppoter.h -> api_python.h
+      kpy_data_handler.cpp -> data_handler.cpp
+      kpy_data_handler.h -> data_handler.h
+Close
+
+################################################################################
+
+[ History - 19 ]
+# Close
+
+# 2022.08.23 - 01
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  reference -> tut_ver01
+    konanai_cpp.exe의 tut 0011 ~ tut 0017 를 바탕으로 제작한 Python Sample
+    C++과 Python의 결과 비교 가능
+  reference -> tut_ver02
+    gan_test 브랜치의 tutorial_dhyoon 자료 복사
+    작성된 tut_ver01를 참고하여 Python Sample 작성 중
+    kai2021 -> kai -> konanai -> src -> api_python -> sample -> reference -> tut_ver02 -> sample
+      tut_ver02_0011.py
+      tut_ver02_0012.py
+      새로운 튜토리얼에 대한 Sample은 더이상 생성하지 않음. 문의사항을 통해 해결하기로 함.
+Close
+
+# 2022.08.23 - 02
+kai2021 -> kai -> konanai -> src -> konanai
+  api.py
+    Type : float32, int32, int64, uint8, bool8 
+    NumPy To Tensor API 구현
+    Tensor To NumPy API 구현
+Close
+
+# 2022.08.24 - 03
+kai2021 -> kai -> konanai -> src -> api_python -> sample -> reference -> tut_ver02
+  문의사항 발생, 주석 남겨놓음
+    tut_ver02_0011.py
+    tut_ver02_0012.py
+      optimizer.reset() -> zerograd
+      loss.to_scalar() -> loss predict
+Close
+
+# 2022.08.25 - 04
+kai2021 -> kai -> konanai -> src -> konanai
+  api.py
+    Tensor <-> NumPy API 마이너 업데이트
+      Tensor Type : enum 처럼 상수화
+      Tensor to NumPy : Tensor 데이터를 복사 할 필요 없음, 포인터 전달하도록 수정
+kai2021 -> kai -> konanai -> src -> api_python -> sample -> tensor_numpy
+  numpy_to_tensor_to_numpy.py
+    Sample 예제
+    NumPy 생성 -> Tensor 전달 -> Tensor 출력 -> NumPy 전달 -> NumPy 출력
+Close
+
+################################################################################
+
+[ History - 18 ]
+# Close
+
+# 2022.08.17 - 01
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  kpy_api.py
+    Debug : Exception 출력 On/Off 기능 구현
+    Debug : Exception 종료 On/Off 기능 구현
+Close
+
+# 2022.08.18 - 02
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  kpy_supporter.cpp
+    Debug 기능 보강
+      모든 예외처리를 출력 할 수 있도록 Debug 함수 수정
+  kpy_api.py
+    Debug 기능 보강
+      None Pointer에 대한 예외 처리 추가
+Close
+
+# 2022.08.18 - 03
+work -> cache 폴더를 삭제하는 경우
+  kai2021 -> kai -> konanai_cpp -> src -> datasets -> to_python_mnist_dataset.cpp
+    MnistDataset::MnistDataset(NN nn, string name, VDict kwArgs) : Dataset(nn, kwArgs)
+  kai2021 -> kai -> konanai_cpp -> src -> objects -> tp_dataset.cpp
+    void Dataset::m_loadData(string path, bool train)
+  kai2021 -> kai -> konanai_cpp -> src -> datasets -> to_python_mnist_dataset.cpp
+    bool MnistDataset::m_load_cache(string cachePath, bool train)
+  kai2021 -> kai -> konanai_cpp -> src -> utils -> tp_stream.cpp
+    TpStreamIn::TpStreamIn(NN nn, string filename, bool bThrow) : TpStream(nn)
+  kai2021 -> kai -> konanai_cpp -> src -> utils -> tp_utils.cpp
+    FILE* TpUtils::fopen(string filepath, string mode, bool bThrow)
+      기본값이 true인 상태, 파일을 열지 못하거나 없는 경우 예외가 발생함
+      따라서 Cache Load -> 실패 -> 예외처리로 빠짐
+  대책
+  kai2021 -> kai -> konanai_cpp -> src -> utils -> tp_stream.cpp
+    TpStreamIn::TpStreamIn(NN nn, string filename, bool bThrow) : TpStream(nn)
+      ...
+      m_fin = TpUtils::fopen(filename.c_str(), "rb");
+      -> m_fin = TpUtils::fopen(filename.c_str(), "rb", bThrow);로 수정
+      ...
+  +
+  kai2021 -> kai -> konanai_cpp -> src -> datasets -> to_python_mnist_dataset.cpp
+    bool MnistDataset::m_load_cache(string cachePath, bool train)
+      TpStreamIn fin(nn(), cacheFile, false); 이후
+	  if (!fin.isOpened()) return false; 처리 필요
+      그렇지 않은 경우 연달아서 TpStreamIn 클래스의 함수 호출 과정에서 예외가 발생함
+Close
+
+# 2022.08.18 - 04
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  mnist_rnn_numpy.py
+    Cache Load에 실패 시 try, catch 활용하여 다음 단계를 진행하도록 함.
+    Python -> File Open -> NumPy 로 불러온 데이터를 C++ Tensor에 저장
+    이후 Cache Save 를 수행, Cache Save 가 미구현된 상태에서도 python은 실행하도록 처리 함.
+    Cache Save 미구현 상태 해결되면 Close 처리 예정
+Close
+
+################################################################################
+
+[ History - 17 ]
+# Close
+
+# 2022.08.11 - 01
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  numpy_to_cpp
+    numpy를 활용한 Unit Test 폴더
+Close
+
+# 2022.08.11 - 02
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  dataloader
+    김민준 연구원 업데이트 자료
+    사용방법 : kai2021 -> kai -> konanai -> src -> api_python -> Readme.txt
+    업데이트 자료 병합 완료
+Close
+
+# 2022.08.11 - 03
+kai2021 -> kai -> konanai_cpp -> src -> datasets
+  to_python_mnist_dataset.cpp
+    MnistDataset::MnistDataset(NN nn, string name, VDict kwArgs) : Dataset(nn, kwArgs)
+    테스트를 위해 해당 함수의 시작 부분을 retrun; 처리하여
+    File 또는 Cache로 부터 Data를 Load 하지 못하게 함
+kai2021 -> kai -> konanai -> src -> api_python -> sample -> mnist_rnn
+  mnist_rnn_sample_numpy.py
+    python 에서 file open, numpy를 활용하여 C++ dataset 클래스에 전달 예제
+    줄 23 ~ 75 구간 -> 김민준 연구원이 개발한 자료로 numpy 활용 구간을 대체 해야함
+    대체 완료
+Close
+  
+################################################################################
+
+[ History - 16 ]
+# Close
+
+# 2022.08.05 - 01
+kai2021 -> kai -> konanai -> src -> api_python
+  kpy_suppoter.cpp
+  Python MnistDataset Image File Open -> NumPy uint8 -> Python to C++ API -> MnistDataset Class 전달
+Close
+
+# 2022.08.05 - 02
+kai2021 -> kai -> konanai -> src -> api_python
+  kpy_suppoter.cpp
+  Python MnistDataset Lable File Open -> NumPy uint8 -> Python to C++ API -> MnistDataset Class 전달
+Close
+
+# 2022.08.05 - 03
+kai2021 -> kai -> konanai_cpp -> src -> datasets
+  to_python_mnist_dataset.cpp
+    MnistDataset::MnistDataset(NN nn, string name, VDict kwArgs) : Dataset(nn, kwArgs)
+    테스트를 위해 해당 함수의 시작 부분을 retrun; 처리하여
+    File 또는 Cache로 부터 Data를 Load 하지 못하게 함
+kai2021 -> kai -> konanai -> src -> api_python -> sample -> mnist_rnn
+  mnist_rnn_sample_test.py 파일 작성
+  Numpy로 부터 MnistData를 등록 하도록 함
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  kpy_supporter.cpp
+    int64 Call_DataLoader_batchcount(void* pDataLoader)
+      해당 함수의 리턴 값이 다름을 발견
+  kpy_test.py
+    print("\n\n\n", num_batches, "\n\n\n")
+  kpy_train.py
+    print("\n\n\n", batch_count, "\n\n\n")
+  원인 파악 필요
+    MNISTDataset 클래스의 변수에 데이터 등록하는 절차 ?
+    상속, 오버로딩 ?
+    MNISTDataset 클래스 내에서 Set 이후 추가적인 작업 필요 ?
+  Test, Train 데이터를 구분하지 않고 호출하여 생긴 문제.
+    처리 완료
+Close
+
+# 2022.08.08 - 04
+kai2021 -> kai -> konanai_cpp -> src -> datasets
+  to_python_mnist_dataset.cpp
+    MnistDataset::MnistDataset(NN nn, string name, VDict kwArgs) : Dataset(nn, kwArgs)
+    테스트를 위해 해당 함수의 시작 부분을 retrun; 처리하여
+    File 또는 Cache로 부터 Data를 Load 하지 못하게 함
+    실제 브랜치에 올리는 경우 return; 처리 하지 않는 작업 필요
+    또는 비어있는 MnistDataset Class 만드는 생성자 필요
+kai2021 -> kai -> konanai -> src -> api_python -> sample -> numpy
+  NumPy를 활용한 샘플 폴더
+    기존의 dataloader 폴더 삭제
+    numpy_mnist_rnn_sample.py
+    numpy_to_tensor_sample.py
+Close
+
+################################################################################
+
+[ History - 15 ]
+# Close
+
+# 2022.07.29 - 01
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  kpy_api.py
+    Python to C++ API : NumPy Type 예외처리 추가
+    Python to C++ API : Pointer 예외처리 추가
+Close
+
+# 2022.07.29 - 02
+kai2021 -> kai -> konanai
+  Readme.txt
+    Python API Error 추가
+Close
+
+# 2022.08.12 - 03
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  kpy_api.py
+  kpy_api_test.py
+  kpy_api_train.py
+  kpy_supporter.cpp
+    C++ API, Python API 예외처리 코드 추가
+    모든 함수에 try, catch 예외처리 추가, 진행 완료
+Close
+
+################################################################################
+
+[ History - 14 ]
+# Close
+
+# 2022.07.28 - 01
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  tutorial
+  tut_0011_sample.py        : tutorial 0011 sample file
+  tut_0012_sample.py        : tutorial 0012 sample file
+  tut_0013_sample.py        : tutorial 0013 sample file
+  tut_0014_sample.py        : tutorial 0014 sample file
+  tut_0015_sample.py        : tutorial 0015 sample file - x^2를 선형으로 표현 할 수 없다고 봄 , 추정이 맞는지 다른 예제와 비교 필요 -> 추정할 수 없음 보여주는 예제가 맞음 (08/12, 확인 완료)
+  tut_0016_sample.py        : tutorial 0016 sample file - Dump를 해야 결과값이 나오는 현상 발견, cpp 에서도 dump 주석처리하면 동일한 현상 발생 -> Shape는 Dump를 통해 복사가 이뤄진 후 진행해야 함 (08/12, 확인 완료)
+  tut_0017_sample.py        : tutorial 0017 sample file
+Close
+
+################################################################################
+
+[ History - 13 ]
+# Open
+
+# 2022.07.26 - 01
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  autoencoder_mnist -> autoencoder_mnist_sample.py 작성 완료
+Close
+
+# 2022.07.26 - 02
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  전체 작성된 Sample 파일 <-> 업데이트된 커밋 : 싱크 맞추기
+  Python API : 함수명 구체화
+Close
+
+# 2022.07.26 - 03
+cpp_test_autoencoder_mnist.cpp
+  122 줄 : loss_class1 : Test, Train 중복 맞는지 문의, 달라야 하는것으로 보임
+Open
+
+# 2022.07.27 - 04
+kai2021 -> kai -> konanai -> src -> api_python -> sample
+  업데이트된 커밋 <-> sample, api : 업데이트 부분 수정 완료
+Close
+
+# 2022.07.28 - 05
+kpy_suppoter.cpp, kpy_suppoter.h
+  try, catch : return NULL; return; 처리
+  Type int : int64 처리
+Close
+
+################################################################################
+
+[ History - 12 ]
+# Close
+
+# 2022.07.25 - 01
+AutoEncoder Sample 작성, 실행 상황 정리 필요, 모든 예제 cuda:0로 수정 필요
+
+  run abalone
+    실행 ->
+    Size of abalone_data: 4177
+    tp_exception 20167 at ..\..\kai\konanai_cpp\src\objects\tp_dataloader.cpp:660
+    Unknown Exception On Command Execution
+
+  run cifar10_is_dog
+    실행 ->
+    tp_exception 10002 at ..\..\kai\konanai_cpp\src\test\cpp_test_main.cpp:73
+    Unknown Exception On Command Execution
+
+  run pulsar
+    pulsar_data : 32518
+    tp_exception 20167 at ..\..\kai\konanai_cpp\src\objects\tp_dataloader.cpp:660
+    Unknown Exception On Command Execution
+
+  run cifar10_fit
+    실행 ->
+    Accuracy: 50.0%, Avg loss: 1.390467 (140 secs)
+
+  run audio singer
+    실행 ->
+    epoch 5 ->
+    Accuracy: 1813333.4%, Avg loss: 1.068119 ->
+    Accuracy: 1813333.4%, Avg loss: 1.068119 ->
+    Accuracy: 1813333.4%, Avg loss: 1.068119 ->
+    Accuracy: 1813333.4%, Avg loss: 1.068119 ->
+    Accuracy: 0.0%, Avg loss: 1.068119 ->
+    tp_exception 10002 at ..\..\kai\konanai_cpp\src\datasets\to_python_audio_classify_dataset.cpp:35
+    Unknown Exception On Command Execution
+
+  run autoencoder cifar10
+    실행 ->
+    epoch 10 -> epoch 5 -> epoch 5 ->
+    이미지 Open -> 창 종료 ->
+    ************** semantic hashing testing **************
+    ##############################################################################
+    ..\..\kai\konanai_cpp\src\models\to_python_autoencoder.cpp:449 top-n 선정 과정 생략, 추후 추가 작업 필요
+
+  run autoencoder mnist
+    실행 -> 
+    epoch 10 -> epoch 5 -> epoch 5 ->
+    이미지 Open -> 창 종료 ->
+    ************** semantic hashing testing **************
+      ##############################################################################
+      ..\..\kai\konanai_cpp\src\models\to_python_autoencoder.cpp:449 top-n 선정 과정 생략, 추후 추가 작업 필요
+    이미지 Open -> 창 종료 ->
+    semi supervised ->
+    Accuracy: 84.3%, Avg loss: 0.543104
+    full supervised ->
+    Accuracy: 98.1%, Avg loss: 0.071636
+    5% supervised ->
+    Accuracy: 92.8%, Avg loss: 0.243291
+
+Close
+
+################################################################################
+
+[ History - 11 ]
+# Close
+
+# 2022.07.19 - 01
+C++ Array2D Information (= float32 pointer, row, col) to Python List : API, Usage 작성 완료
+  kai2021 -> kai -> konanai -> src -> api_python -> kpy_data_handler.cpp
+    PyObject* ConvertArray2Dpf32ToPyList(void* Array2Dpf32, int Array2Drow, int Array2Dcol);
+  Usage
+    [In C++]
+    PyObject* PyObject_List	= kpy::ConvertArray2Dpf32ToPyList( ### pf32 ### , ### row ### , ### col ### );
+    [In Python]
+    (Python)Get_PyObject <- (C++)PyObject_List
+    Get_PyObject[0] : float32 pointer
+    Get_PyObject[1] : row
+    Get_PyObject[2] : col
+    Array2Dpf32_Size	= Get_PyObject[1] * Get_PyObject[2]
+    Array2Dpf32			= ctypes.cast(Get_PyObject[0], ctypes.POINTER(ctypes.c_float * Array2Dpf32_Size)).contents
+    Get_NumPy			= np.ctypeslib.as_array(Array2Dpf32, shape = [Array2Dpf32_Size]).astype(np.float32)
+    Get_NumPy			= np.reshape(Get_NumPy, (Get_PyObject[1], Get_PyObject[2]))
+Close
+
+################################################################################
+
+[ History - 10 ]
+# Close
+
+# 2022.07.18 - 01
+중간정리
+
+- Expand 수정 + Sample 작성 완료 -
+  kai2021 -> kai -> konanai -> src -> api_python -> sample
+    cifar10 -> cifar10_sample.py        : expand 버전으로 수정 완료, Python API, sample 작성 완료
+    mnist_rnn -> mnist_rnn_sample.py    : expand 버전으로 수정 완료, Python API, sample 작성 완료
+Close
+
+- Sample 작성 완료 -
+  kai2021 -> kai -> konanai -> src -> api_python -> sample
+    mnist -> mnist_sample.py            : expand 버전 주석처리 되어있음, expand를 제외한 sample 작성 완료
+Close
+
+- Tutorial Sample 작성 완료 -
+  kai2021 -> kai -> konanai -> src -> api_python -> sample
+    tutorial -> tut_0011_sample.py      : NumPy -> Tensor 전달 완료, Python API, sample 작성 완료
+Close
+
+################################################################################
+
+[ History - 09 ]
+# Open
+
+# 2022.07.13 - 01
+Expand 버전으로 mnist rnn sample 수정
+  Train, Test가 Loss 모듈을 다르게 가져가도록 수정
+Close
+
+# 2022.07.14 - 02
+Python의 NumPy 포인터를 가져와서 접근 가능한지 검토
+  Python NumPy Class -> ctypes 변환 -> konanai api -> C++ float* 변환 성공
+    kai2021 -> kai -> konanai -> src -> api_python -> kpy_supporter.h
+    ***** Usage *****
+    [In C++]
+    KPY_API void* Call_NumPy2D_To_pfloat32(void* pSession, void* NumPy_Array, PyObject* NumPy_Shape);
+    [In Python]
+    NumPy2D         = np.arange(10.0, 16.0).reshape([-1,1]).astype(np.float32)
+    NumPy2D_Shape   = [ NumPy2D.shape[0], NumPy2D.shape[1] ]
+    NumPy2D_ctypes  = np.ctypeslib.as_ctypes(NumPy2D)
+    Tensor_Ptr      = Call_NumPy2D_To_pfloat32( pSession, NumPy2D_ctypes, NumPy2D_Shape )
+Close
+
+# 2022.07.14 - 03
+konanai Tensor 클래스에 전달가능한지 검토
+  전달 가능
+Close
+
+# 2022.07.15 - 04
+Tensor x = Tensor::arange(nn, -10, 10, 1);
+  x.reshape({ -1,1 }) 이후 x.desc().c_str() 사용 불가
+Open
+
+# 2022.07.15 - 05
+model.compile, model.fit 함수 구현
+  konanai -> src -> api_python -> sample -> tutorial -> tut_0011_sample.py
+  Python API arg types 지정, C++ API arg type 지정, tut_0011_sample.py 주석 제거, 줄맞춤.
+Close
+
+################################################################################
+
+[ History - 08 ]
+# Close
+
+# 2022.07.11 - 01
+Expand 버전으로 cifar10 sample 수정
+  Module_Model_Expand API 추가
+  Train, Test가 Loss 모듈을 다르게 가져가도록 수정
+Close
+
+# 2022.07.11 - 02
+프로젝트명 개정에 따른 헤더 수정
+Close
+
+# 2022.07.11 - 03
+프로젝트명 개정에 따른 .gitignore 수정
+Close
+
+################################################################################
+
+[ History - 07 ]
+# Close
+
+# 2022.07.01 - 01
+mnist rnn sample 코드 작성 시작
+  kai -> kai_torchtest -> src -> api_python -> sample
+    kai_api.py
+    kai_api_train.py
+    kai_api_test.py
+      mnist
+        mnist_sample.py
+      cifar10
+        cifar10_sample.py
+      mnist_rnn
+        mnist_rnn_sample.py
+Close
+
+# 2022.07.07 - 02
+mnist_rnn sample 코드 작성 완료
+Close
+
+# 2022.07.07 - 03
+.gitignore 정리
+Close
+
+################################################################################
+
+[ History - 06 ]
+# Close
+
+# 2022.06.28 - 01
+cifar10 sample 코드 작성 시작
+  kai -> kai_torchtest -> src -> api_python -> sample
+    kai_api.py
+    kai_api_train.py
+    kai_api_test.py
+      mnist
+        mnist_sample.py
+      cifar10
+        cifar10_sample.py
+Close
+
+# 2022.07.01 - 02
+cifar10 sample 코드 작성 완료
+Close
+
+################################################################################
+
+[ History - 05 ]
+# Close
+
+# 2022.06.27 - 01
+kpy_api.py
+  [1]
+  Function name 정리
+  Call_''name''     : DLL Function
+  lib_''name''      : Python Call DLL Function
+  def ''name''():   : Python Function
+    return lib_''name''()
+  [2]
+  def에 사용되는 인자 -> kpy_python_supporter.h 인자와 같은 이름을 사용하도록 수정
+  [3]
+  API에서 사용되는 Pointer의 delete 처리, 테스트 완료
+  [4]
+  BatchData 호출 문제로 구현하지 못한 Shape, Type 함수 구현 완료
+Close
+
+cpp_test_mnist.cpp
+  [1]
+  Pointer name 정리
+  Session Class -> pSession
+  NeuralNetwork Class -> pModule
+  NeuralNetwork Class declare -> pModel
+Close
+
+################################################################################
+
+[ History - 04 ]
+# Close
+
+# 2022.06.22 - 01
+코드 정리
+  kai -> kai_torchtest -> src -> api_python
+    kpy_api.py : Python API
+    kpy_python_supporter.cpp : C++ Function Caller
+    kpy_data_handler.cpp : C++ <-> Python Data Handler
+  kai -> kai_torchtest -> src -> api_python -> sample
+    sample.py : mnist sample file
+    sample_train.py : train function define
+    sample_test.py : test function define
+Close
+
+################################################################################
+
+[ History - 03 ]
+# Close
+
+# 2022.06.16 - 01
+va_team/main 브랜치 반영
+k2py.cpp
+py2k.cpp
+sample.py
+  API 업데이트
+    C++ to Python : train, test 함수 구현 완료
+    BatchData 포인터 생성 후 호출 과정에서 문제 발생
+    kai_torchtest -> src -> api_pyton -> sample.py
+      정상작동 코드   : 444, 445 Line 주석 해제, 449, 450 Line 주석
+      비정상작동 코드 : 449, 450 Line 주석 해제, 444, 445 Line 주석
+    kai_torchtest -> src -> api_pyton -> k2py.cpp
+      PyObject* Call_BatchData_TensorX(void* pDataLoader) : BatchData 포인터 생성 함수
+      PyObject* Call_BatchData_TensorY(void* pDataLoader) : BatchData 포인터 생성 함수
+    kai_torchtest -> src -> api_pyton -> py2k.cpp
+      PyObject* VoidPtrVec_To_PyList(const std::vector<void*>* VecPtr) : C++ 포인터 -> Python List 변환 함수
+    kai_torch -> src -> object -> tp_tensor.cpp
+      실제 호출되는 BatchData 의 Tensor Class 확인 필요
+Close
+
+# 2022.06.22 - 02
+k2py.cpp
+py2k.cpp
+sample.py
+  DataLoader Class 확인 완료
+    DataLoader 의 .begin()은 새로운 BatchData 클래스를 생성하여 .x(), .y()를 호출하도록 되어있음
+    BatchData 의 iterator 구조를 Python에서 구현하기 위한 작업 완료
+Close
+
+################################################################################
+
+[ History - 02 ]
+# Close
+
+# 2022.06.08 - 01
+k2py.cpp
+py2k.cpp
+sample.py
+  API 업데이트
+    optimizer까지 작성 완료
+    platform_ai_group 브랜치로 병합 : commit : ff41aba2
+Close
+
+# 2022.06.15 - 02
+Git을 거치지 않은 수정본 전달로 인한 platform_ai_group 브랜치 리셋 : 34352e18
+Close
+
+################################################################################
+
+[ History - 01 ]
+# Close
+
+# 2022.06.07 - 01
+k2py.cpp
+py2k.cpp
+  아래 커밋 기준으로 작업 시작
+  Branch : platform_ai_group
+  Commit : f9c39ac4
+
+    [ Visual Studio 2019, 관리자모드 실행 ]
+
+    [ x64-Debug ]
+    out 폴더 삭제 -> 캐시 생성 -> x64-Debug  -> kai_torch.exe
+    run mnist
+    x64_Debug_01.PNG (첫번째 실행)
+    run mnist
+    x64_Debug_02.PNG (두번째 실행, 같은 프로그램 내에서 종료 없이 실행)
+
+    [ x64-Release ]
+    out 폴더 삭제 -> 캐시 생성 -> x64-Release -> kai_torch.exe
+    run mnist
+    x64_Release_01.PNG (첫번째 실행, 프로그램 종료)
+
+    프로그램 재시작
+    run mnist
+    x64_Release_02.PNG (첫번째 실행, 이상 없음)
+    run mnist
+    x64_Release_03.PNG (두번째 실행, 문제발생)
+Close
+
+# 2022.06.07 - 02
+작업중인 사항으로 확인 됨
+Close
+
+################################################################################
