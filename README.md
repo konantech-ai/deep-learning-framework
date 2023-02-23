@@ -86,13 +86,13 @@
       >> mkdir <SOLUTION_DIR_NAME>
 ### 2. 생성한 디렉토리로 이동 후 git clone 명령어를 통해 다운로드
       > cd <SOLUTION_DIR_NAME>
-      > git clone http://10.10.18.132:6118/vision-ai-lab/kai2021.git .
+      > git clone https://github.com/konantech-ai/deep-learning-framework.git .
       > 옵션 설명
-      >> git clone -b platform_ai_group --depth 1 http://10.10.18.132:6118/vision-ai-lab/kai2021.git .
+      >> git clone -b platform_ai_group --depth 1 https://github.com/konantech-ai/deep-learning-framework.git .
       >> git clone [-b <BRANCH_NAME>] [--depth <COMMIT_COUNT>] [<REMOTE_REPOSITORY_URL>] [.]  
       >> -b : 특정 브랜치만 다운로드 받음  
       >> --depth : 최신 N개 커밋만 다운로드 받음  
-      >> <REMOTE_REPOSITORY_URL> : http://10.10.18.132:6118/vision-ai-lab/kai2021.git  
+      >> <REMOTE_REPOSITORY_URL> : https://github.com/konantech-ai/deep-learning-framework.git  
       >> . : 하위 디렉토리를 생성하지 않고 현재 위치에 바로 다운로드
 ### 3. 컴파일 위치를 사용자 환경 변수로 등록
       > 시작 -> cmd (반드시 cmd 사용) -> 생성한 디렉토리로 이동  
